@@ -29,7 +29,7 @@ def handle_consent_popup(driver): # Find and click consent button by class
     except:
         pass # No consent popup found, which is fine
 
-def check_file_freshness(file_path, days=30): # Function to allow us to resume if the .py crashes. Huge time saver.
+def check_file_freshness(file_path, days=30): # Function to allow me to resume if the .py crashes. Huge time saver.
     """Check if a file exists and is less than specified days old"""
     
     if not Path(file_path).exists():

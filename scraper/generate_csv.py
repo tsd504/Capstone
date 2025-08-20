@@ -50,9 +50,9 @@ def generate_quest_csv():
                 with open(file, 'r', encoding='utf-8') as f: # Read the quest file
                     lines = [line.strip() for line in f if line.strip() and not line.startswith('#')] # Skip empty lines and comments
                 
-                # Data has a header, so we skip the first line
+                # Data has a header, so I skip the first line
                 for line in lines[1:]:
-                    # Rows are tab separated + We add the category and quest name
+                    # Rows are tab separated + I add the category and quest name
                     row = line.split('\t') + [cat_dir.name, file.stem.replace('_', ' ')] # Folder names & Truncated file name
                     all_data.append(row)
             except Exception as e:

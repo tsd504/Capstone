@@ -393,7 +393,7 @@ def query(self, question, top_k=5, similarity_threshold=0.5):
     return self.generate_answer(question, results)
 ```
 
-Reference: [Cosine Similarity in BigQuery](https://stackoverflow.com/questions/53927630/cosine-similarity-between-pair-of-arrays-in-bigquery) (Note: Formula is slightly different in our implementation)
+Reference: [Cosine Similarity in BigQuery](https://stackoverflow.com/questions/53927630/cosine-similarity-between-pair-of-arrays-in-bigquery) (Note: Formula is slightly different in my implementation)
 
 ---
 

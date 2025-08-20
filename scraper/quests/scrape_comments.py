@@ -71,7 +71,7 @@ def scrape_quest_details(quest_extension):
             # Find the H1 quest title
             h1_title = main_content.find('h1')
             if h1_title:
-                # Get all text content after the H1 until we hit a header tag
+                # Get all text content after the H1 until I hit a header tag
                 instruction_text = ""
                 
                 # Find the position of the H1 within main_content
@@ -86,7 +86,7 @@ def scrape_quest_details(quest_extension):
                     for i, element in enumerate(main_content.children):
                         if i > h1_index:  # Only process elements after the H1
                             if element.name in ['h2', 'h3', 'h4', 'h5', 'h6']:
-                                # Stop when we hit a section header
+                                # Stop when I hit a section header
                                 break
                             elif element.name is None:
                                 # This is a text node
@@ -111,7 +111,7 @@ def scrape_quest_details(quest_extension):
                                     if cell_text and len(cell_text) > 2:  # Filter out very short text
                                         instruction_text += cell_text + " "
             
-            # No fallback logic - if we didn't find text between H1 and next header, that's it
+            # No fallback logic - if I didn't find text between H1 and next header, that's it
             
             # Clean up the instruction text
             if instruction_text:
@@ -194,7 +194,7 @@ def scrape_quest_details(quest_extension):
 
 def update_quest_file(file_path, progress_callback=None):
     """Update quest file with additional columns"""
-    # Check if we need to scrape comments
+    # Check if I need to scrape comments
     if not should_rescrape_comments(file_path):
         return
     
@@ -223,7 +223,7 @@ def update_quest_file(file_path, progress_callback=None):
     if columns_exist:
         print("New columns already exist in the file. Updating existing data...")
         
-        # Check if we need to rename Description to Instructions
+        # Check if I need to rename Description to Instructions
         if 'Description' in header_content and 'Instructions' not in header_content:
             print("Renaming 'Description' column to 'Instructions'...")
             header_content = header_content.replace('Description', 'Instructions')
@@ -388,7 +388,7 @@ def main():
     
     # Process each quest file
     for i, file_path in enumerate(quest_files, 1):
-        # Check if we need to scrape
+        # Check if I need to scrape
         if should_rescrape_comments(file_path):
             try:
                 # Show file progress and quest progress on same line

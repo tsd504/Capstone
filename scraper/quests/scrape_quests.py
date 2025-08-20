@@ -328,7 +328,7 @@ def collect_unique_items_from_files():
                         
                         # Split by tabs to get columns
                         parts = line.strip().split('\t')
-                        if len(parts) >= 6:  # Ensure we have at least 6 columns
+                        if len(parts) >= 6:  # Ensure I have at least 6 columns
                             rewards_column = parts[5]  # Column 6 (0-indexed as 5)
                             
                             # Find all item extensions in the rewards column only
@@ -441,7 +441,7 @@ def replace_item_extensions_with_names():
                     
                     # Split by tabs to get columns
                     parts = line.strip().split('\t')
-                    if len(parts) >= 6:  # Ensure we have at least 6 columns
+                    if len(parts) >= 6:  # Ensure I have at least 6 columns
                         rewards_column = parts[5]  # Column 6 (0-indexed as 5)
                         
                         # Replace item extensions with names in the rewards column only
