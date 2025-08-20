@@ -416,7 +416,6 @@ Reference: [Cosine Similarity in BigQuery](https://stackoverflow.com/questions/5
    ```
 
 3. **Configure variables:**
-   - **Subreddit list** in `collect_posts.py` (lines 108-111)
    - **BigQuery dataset and table names** in `simple_rag.py` (lines 47-48)
    - **File paths** in `simple_rag.py` for your CSV data
 
