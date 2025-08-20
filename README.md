@@ -61,7 +61,7 @@ Focuses on scraping functions and HTML/JavaScript handling.
 ```python
 def scrape_raid_items(raid_name, class_name, spec_name):
     """
-    Scrapes items for a specific raid, class, and specialization
+    Scrapes items for a specific raid, class, and specialisation
     Handles JavaScript-loaded content and dynamic page elements
     """
     # Navigate to the page
