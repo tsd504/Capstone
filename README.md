@@ -291,7 +291,7 @@ def analyse_post_type(post_title, post_content):
 ## RAG_system code guidance
 
 ### Order of Operation
-1. Initialize Google Cloud services and AI models
+1. Initialise Google Cloud services and AI models
 2. Create BigQuery table for vector storage
 3. Process input data and generate embeddings
 4. Query system using cosine similarity search
