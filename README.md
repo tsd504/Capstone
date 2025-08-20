@@ -17,7 +17,7 @@ The project consists of three main components:
 2. **`Reddit_API/`** - Reddit post collection and analysis
 3. **`RAG_system/`** - AI-powered question answering system
 
-## Code Organisation Best Practice
+## Code Best Practices
 
 Despite only importing one file, the project uses the `if __name__ == "__main__":` pattern throughout. This is a Python best practice that:
 
