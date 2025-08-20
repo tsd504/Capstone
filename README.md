@@ -167,7 +167,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 # Hover over element then click
 actions = ActionChains(driver)
-actions.move_to_element(element).perform()
+actions.move_to_element(element).click().perform()
 
 # Drag and drop
 actions.drag_and_drop(source, target).perform()
