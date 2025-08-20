@@ -214,11 +214,11 @@ Reference: [How to write to a CSV file](https://docs.python.org/3/library/csv.ht
 
 ### Order of Operation
 1. Collect Reddit posts from relevant subreddits
-2. Analyze posts for answerability
+2. Analyse posts for answerability
 3. Process answerable posts with RAG system
 
 ### General Summary
-The Reddit API component collects and analyzes Classic WoW Reddit posts, determining which can be answered with scraped game data.
+The Reddit API component collects and analyses Classic WoW Reddit posts, determining which can be answered with scraped game data.
 
 #### `collect_posts.py`
 Collects Reddit posts using PRAW (Python Reddit API Wrapper).
@@ -256,7 +256,7 @@ Reference: [PRAW Quick Start Guide](https://praw.readthedocs.io/en/stable/gettin
 Determines the number of Reddit posts answerable with complete data vs. current scraped data.
 
 **What it does:**
-- Analyzes each Reddit post for answerability
+- Analyses each Reddit post for answerability
 - Classifies posts as answerable with complete wiki data or subjective
 - Provides insights into data coverage and gaps
 
@@ -273,7 +273,7 @@ def analyse_post_type(post_title, post_content):
     Uses Gemini AI to classify post types
     """
     prompt = f"""
-    Analyze this Reddit post and determine if it can be answered with Classic WoW game data:
+    Analyse this Reddit post and determine if it can be answered with Classic WoW game data:
     
     Title: {post_title}
     Content: {post_content}
@@ -338,7 +338,7 @@ Used for storing and querying vector embeddings and game data.
 
 Reference: [BigQuery Python Client Library](https://cloud.google.com/python/docs/reference/bigquery/latest)
 
-**Vertex AI Initialization:**
+**Vertex AI Initialisation:**
 Sets up the text embedding model for converting text to vectors.
 
 Reference: [Vertex AI Text Embeddings API](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/text-embeddings-api#python)
@@ -426,7 +426,7 @@ Reference: [Cosine Similarity in BigQuery](https://stackoverflow.com/questions/5
    # Collect Reddit posts
    python Reddit_API/collect_posts.py
    
-   # Analyze posts
+   # Analyse posts
    python Reddit_API/analyse_posts.py
    
    # Run RAG system
