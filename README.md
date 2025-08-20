@@ -278,7 +278,7 @@ def analyse_post_type(post_title, post_content):
     Content: {post_content}
     
     Classify as:
-    - "answerable with wiki data" if it asks for factual game information
+    - "answerable" with wiki data if it asks for factual game information
     - "subjective" if it's opinion-based or requires personal experience
     """
     
