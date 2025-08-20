@@ -160,7 +160,7 @@ def scrape_quest_data(quest_name):
 ```
 
 **Selenium ActionChains:**
-ActionChains are useful for complex interactions like hovering, drag and drop, and multi-step actions.
+ActionChains are "useful for complex interactions like hovering, drag and drop, and multi-step actions."
 
 ```python
 from selenium.webdriver.common.action_chains import ActionChains
