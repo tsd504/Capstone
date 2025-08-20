@@ -1,0 +1,6 @@
+# Quest Data for World Events - Day of the Dead
+# Generated: 2025-08-18 17:04:27
+# Total quests: 0 (No quests found)
+# Comment scrape timestamp: 2025-08-18 17:55:03
+
+Quest Extension	Name	Level	Required Level	Faction	Rewards	Category	Instructions	Progress	Start	End	Comment1	Comment2	Comment3	Comment4	Comment5

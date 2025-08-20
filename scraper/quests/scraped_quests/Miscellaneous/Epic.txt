@@ -1,0 +1,7 @@
+# Quest Data for Miscellaneous - Epic
+# Generated: 2025-08-18 17:01:18
+# Total quests: 1
+# Comment scrape timestamp: 2025-08-18 17:48:59
+
+Quest Extension	Name	Level	Required Level	Faction	Rewards	Category	Instructions	Progress	Start	End	Comment1	Comment2	Comment3	Comment4	Comment5
+/?quest=8446	Shrouded in Nightmare	60	60	Both	9950 XP	Miscellaneous	Find someone capable of deciphering the meaning behind the Nightmare Engulfed Object. Perhaps a druid of great power could assist you. Nightmare Engulfed Object Provided Item: Nightmare Engulfed Object	Yes, <race>?	Nightmare Engulfed Object	Keeper Remulos	Reward from the quest line is a nice stam/NR ring Malfurion's Signet Ring https://classicdb.ch/?item=20600	1000 rep for this part when I turned it in. Not sure when it changed.	Despite the recent rumours, I can assure those who're in reach of getting one now or soon: You do not have to kill all four dragons, just one. Turn this one in, take ring and laugh at shamans and AQ. Huzzah? Edited, Fri Jun 2 03:54:48 2006	From my experience it was always a guaranteed drop, perhaps the show percentages are messed up because of master looter.	The percentage is lower than 100% because it can only drop for 1 player once(as this is not a repeatable quest) so that means when they kill the dragon again it wont drop for them.

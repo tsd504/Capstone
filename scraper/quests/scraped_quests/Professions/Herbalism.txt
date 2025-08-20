@@ -1,0 +1,7 @@
+# Quest Data for Professions - Herbalism
+# Generated: 2025-08-18 16:59:38
+# Total quests: 1
+# Comment scrape timestamp: 2025-08-18 17:51:06
+
+Quest Extension	Name	Level	Required Level	Faction	Rewards	Category	Instructions	Progress	Start	End	Comment1	Comment2	Comment3	Comment4	Comment5
+/?quest=866	Root Samples	16	9	Both	1150 XP | Item: Spore-covered Tunic	Professions	Bring 8 Root Samples to Mebok Mizzyrix in Ratchet. Root Sample (8)	Hello, <name>. Did you get those root samples?	Mebok Mizzyrix	Mebok Mizzyrix	You can find the Root Samples with the other plants you find in Barrens. When you open the lootbox of any plant in Barrens you will get a sample as extra.	Need to have herbalism to get this quest, not sure what skill level needed. Root Sample can be found in any herb patch.	Just to clarify, as the quest description itself is not all that clear. To do this quest you have to already be a herbalist, and basically you run around gathering herbs like normal, but while the quest is active, you will receive a bonus item 'Root Sample' when you are gathering. I found the root sample on anything I gathered (briarthorn, silverleaf, earthroot, etc.) Hope that helps!	i found them on every plant that i found in the barrens, farely easy quest	I could not pick up this quest at Herbalism 37.&nbsp Came back at Herbalism 50, lvl 10 and could pick it up.

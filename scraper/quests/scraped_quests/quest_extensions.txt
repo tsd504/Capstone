@@ -1,0 +1,133 @@
+# Quest Extensions from classicdb.ch
+# Generated: 2025-08-18 16:39:42
+# Total groups found: 9
+# Total extensions found: 110
+
+## Group: ?quests=0 (28 extensions)
+  /?quests=0.1	Dun Morogh
+  /?quests=0.10	Duskwood
+  /?quests=0.11	Wetlands
+  /?quests=0.12	Elwynn Forest
+  /?quests=0.130	Silverpine Forest
+  /?quests=0.139	Eastern Plaguelands
+  /?quests=0.1497	Undercity
+  /?quests=0.1519	Stormwind City
+  /?quests=0.1537	Ironforge
+  /?quests=0.2257	Deeprun Tram
+  /?quests=0.25	Blackrock Mountain
+  /?quests=0.267	Hillsbrad Foothills
+  /?quests=0.28	Western Plaguelands
+  /?quests=0.3	Badlands
+  /?quests=0.33	Stranglethorn Vale
+  /?quests=0.36	Alterac Mountains
+  /?quests=0.38	Loch Modan
+  /?quests=0.4	Blasted Lands
+  /?quests=0.40	Westfall
+  /?quests=0.41	Deadwind Pass
+  /?quests=0.44	Redridge Mountains
+  /?quests=0.45	Arathi Highlands
+  /?quests=0.46	Burning Steppes
+  /?quests=0.47	The Hinterlands
+  /?quests=0.51	Searing Gorge
+  /?quests=0.8	Swamp of Sorrows
+  /?quests=0.85	Tirisfal Glades
+  /?quests=0.9	Northshire Abbey (Elwynn Forest)
+
+## Group: ?quests=1 (21 extensions)
+  /?quests=1.1377	Silithus
+  /?quests=1.14	Durotar
+  /?quests=1.141	Teldrassil
+  /?quests=1.148	Darkshore
+  /?quests=1.15	Dustwallow Marsh
+  /?quests=1.16	Azshara
+  /?quests=1.1637	Orgrimmar
+  /?quests=1.1638	Thunder Bluff
+  /?quests=1.1657	Darnassus
+  /?quests=1.17	The Barrens
+  /?quests=1.215	Mulgore
+  /?quests=1.331	Ashenvale
+  /?quests=1.357	Feralas
+  /?quests=1.361	Felwood
+  /?quests=1.400	Thousand Needles
+  /?quests=1.405	Desolace
+  /?quests=1.406	Stonetalon Mountains
+  /?quests=1.440	Tanaris
+  /?quests=1.490	Un'Goro Crater
+  /?quests=1.493	Moonglade
+  /?quests=1.618	Winterspring
+
+## Group: ?quests=2 (19 extensions)
+  /?quests=2.133	Gnomeregan
+  /?quests=2.1417	Sunken Temple
+  /?quests=2.1517	Uldaman
+  /?quests=2.1581	The Deadmines
+  /?quests=2.1583	Blackrock Spire
+  /?quests=2.1584	Blackrock Depths
+  /?quests=2.1717	Razorfen Kraul
+  /?quests=2.2017	Stratholme
+  /?quests=2.2057	Scholomance
+  /?quests=2.209	Shadowfang Keep
+  /?quests=2.2100	Maraudon
+  /?quests=2.2437	Ragefire Chasm
+  /?quests=2.2557	Dire Maul
+  /?quests=2.717	The Stockade
+  /?quests=2.718	Wailing Caverns
+  /?quests=2.719	Blackfathom Deeps
+  /?quests=2.722	Razorfen Downs
+  /?quests=2.796	Scarlet Monastery
+  /?quests=2.978	Zul'Farrak
+
+## Group: ?quests=3 (7 extensions)
+  /?quests=3.19	Zul'Gurub
+  /?quests=3.2159	Onyxia's Lair
+  /?quests=3.2677	Blackwing Lair
+  /?quests=3.2717	Molten Core
+  /?quests=3.3428	Temple of Ahn'Qiraj
+  /?quests=3.3429	Ruins of Ahn'Qiraj
+  /?quests=3.3456	Naxxramas
+
+## Group: ?quests=4 (9 extensions)
+  /?quests=4.-141	Paladin
+  /?quests=4.-161	Mage
+  /?quests=4.-162	Rogue
+  /?quests=4.-261	Hunter
+  /?quests=4.-262	Priest
+  /?quests=4.-263	Druid
+  /?quests=4.-61	Warlock
+  /?quests=4.-81	Warrior
+  /?quests=4.-82	Shaman
+
+## Group: ?quests=5 (9 extensions)
+  /?quests=5.-101	Fishing
+  /?quests=5.-121	Blacksmithing
+  /?quests=5.-181	Alchemy
+  /?quests=5.-182	Leatherworking
+  /?quests=5.-201	Engineering
+  /?quests=5.-24	Herbalism
+  /?quests=5.-264	Tailoring
+  /?quests=5.-304	Cooking
+  /?quests=5.-324	First Aid
+
+## Group: ?quests=6 (4 extensions)
+  /?quests=6.-25	Battlegrounds
+  /?quests=6.2597	Alterac Valley
+  /?quests=6.3277	Warsong Gulch
+  /?quests=6.3358	Arathi Basin
+
+## Group: ?quests=7 (5 extensions)
+  /?quests=7.-1	Epic
+  /?quests=7.-344	Legendary
+  /?quests=7.-365	Ahn'Qiraj War Effort
+  /?quests=7.-367	Reputation
+  /?quests=7.-368	Scourge Invasion
+
+## Group: ?quests=9 (8 extensions)
+  /?quests=9.-22	Hallow's End
+  /?quests=9.-284	Children's Week
+  /?quests=9.-364	Darkmoon Faire
+  /?quests=9.-369	Midsummer
+  /?quests=9.-370	Brewfest
+  /?quests=9.-374	Noblegarden
+  /?quests=9.-375	Pilgrim's Bounty
+  /?quests=9.-41	Day of the Dead
+

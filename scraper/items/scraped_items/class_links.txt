@@ -1,0 +1,63 @@
+2025-08-18 17:59:20
+# Total class/spec combinations: 20
+
+# Druid - Balance
+?class=Druid&spec=Balance
+
+# Druid - Feral
+?class=Druid&spec=Feral
+
+# Druid - Guardian
+?class=Druid&spec=Guardian
+
+# Druid - Restoration
+?class=Druid&spec=Restoration
+
+# Hunter - Marksmanship
+?class=Hunter&spec=Marksmanship
+
+# Mage - Fire
+?class=Mage&spec=Fire
+
+# Mage - Frost
+?class=Mage&spec=Frost
+
+# Paladin - Holy
+?class=Paladin&spec=Holy
+
+# Paladin - Protection
+?class=Paladin&spec=Protection
+
+# Paladin - Retribution
+?class=Paladin&spec=Retribution
+
+# Priest - Holy
+?class=Priest&spec=Holy
+
+# Priest - Shadow
+?class=Priest&spec=Shadow
+
+# Rogue - Assassination
+?class=Rogue&spec=Assassination
+
+# Shaman - Elemental
+?class=Shaman&spec=Elemental
+
+# Shaman - Enhancement
+?class=Shaman&spec=Enhancement
+
+# Shaman - Restoration
+?class=Shaman&spec=Restoration
+
+# Warlock - Destruction
+?class=Warlock&spec=Destruction
+
+# Warrior - Fury
+?class=Warrior&spec=Fury
+
+# Warrior - Protection
+?class=Warrior&spec=Protection
+
+# Warrior - Melee
+?class=Warrior&spec=Melee
+

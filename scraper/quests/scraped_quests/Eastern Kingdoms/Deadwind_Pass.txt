@@ -1,0 +1,6 @@
+# Quest Data for Eastern Kingdoms - Deadwind Pass
+# Generated: 2025-08-18 16:44:51
+# Total quests: 0 (No quests found)
+# Comment scrape timestamp: 2025-08-18 17:19:51
+
+Quest Extension	Name	Level	Required Level	Faction	Rewards	Category	Instructions	Progress	Start	End	Comment1	Comment2	Comment3	Comment4	Comment5
