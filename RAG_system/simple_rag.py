@@ -167,11 +167,15 @@ class SimpleRAG:
         
         print("All data stored in BigQuery!")
     
-    def query(self, question, top_k=3):
+    def query(self, question, top_k=5, similarity_threshold=0.5):
         """
         Query the RAG system
+        
+        Args:
+            question: The question to answer
+            top_k: Number of similar documents to retrieve (default 3)
+            similarity_threshold: Minimum similarity score (default 0.5)
         """
-        print(f"Querying: {question}")
         
         # Get embedding for the question
         question_embedding = self.embedding_model.get_embeddings([question])[0].values
@@ -199,6 +203,7 @@ class SimpleRAG:
         SELECT text, source, similarity_score
         FROM similarities
         WHERE similarity_score IS NOT NULL
+        AND similarity_score >= {similarity_threshold}
         ORDER BY similarity_score DESC
         LIMIT {top_k}
         """
@@ -222,9 +227,53 @@ class SimpleRAG:
         # Create context from similar texts
         context = "\n\n".join([item["text"] for item in similar_texts])
         
+        # Determine optimal K based on question type
+        if any(word in question.lower() for word in ['item', 'weapon', 'armor', 'gear', 'equipment', 'best']):
+            # For item questions, get more data for better aggregation
+            dynamic_k = min(50, top_k * 10)  # Up to 50 items for aggregation
+        else:
+            # For quest questions, fewer results are fine
+            dynamic_k = top_k
+            
+        # Re-run query with dynamic K if needed
+        if dynamic_k != top_k:
+            query_sql_dynamic = query_sql.replace(f"LIMIT {top_k}", f"LIMIT {dynamic_k}")
+            query_job = self.bq_client.query(query_sql_dynamic)
+            results = query_job.result()
+            
+            # Re-process results
+            similar_texts = []
+            for row in results:
+                similar_texts.append({
+                    "text": row.text,
+                    "source": row.source,
+                    "score": row.similarity_score
+                })
+        
         # Generate response with Gemini
         prompt = f"""
+        System Instructions:
         Based on this information, answer the question. If the information doesn't contain the answer, say so.
+        
+        Raid Abbreviations:
+        - Molten Core = MC
+        - Onyxia = Ony
+        - Blackwing Lair = BWL
+        - Zul'Gurub = ZG
+        - Ruins of Ahn'Qiraj = AQ20
+        - Temple of Ahn'Qiraj = AQ40
+        
+        For ITEM questions:
+        - When someone asks for "best" items, interpret this as "most commonly worn" items
+        - Our data shows what top players actually wear, so "best" = "most popular among top players"
+        - Provide aggregate data showing which items appear most frequently
+        - Use raid abbreviations when referring to raids (MC, BWL, AQ40, etc.)
+        
+        For QUEST questions:
+        - Focus on exact quest name matches when possible
+        - If multiple quests seem relevant, prioritize the one with the most direct name match
+        - Provide complete quest information (location, requirements, rewards, etc.)
+        - Don't mix up different quests - stick to the most relevant single quest
 
         Information:
         {context}
@@ -245,9 +294,18 @@ def main():
     print("=== Simple RAG System ===")
     print()
     
-    # STEP 1: Update these values
-    PROJECT_ID = "rag-project-469419"  # Your Google Cloud project ID
-    GEMINI_API_KEY = "AIzaSyC1xkqjimA7P8Yus0iXUoLkUgSxza1sbNs"  # Your Gemini API key
+    # STEP 1: Load credentials from JSON file
+    credentials_path = Path(__file__).parent / 'credentials.json'
+    try:
+        with open(credentials_path, 'r') as f:
+            credentials = json.load(f)
+        PROJECT_ID = credentials["project_id"]
+        GEMINI_API_KEY = credentials["gemini_api_key"]
+        print("Loaded credentials from credentials.json")
+    except FileNotFoundError:
+        print("Warning: credentials.json not found. Make sure it's in the same directory as this script.")
+        print("Please create credentials.json with: project_id, gemini_api_key")
+        exit(1)
     
     # STEP 2: Make sure your CSV files are in the right place
     # Use Path(__file__).parent to reference relative to script location

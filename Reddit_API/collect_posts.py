@@ -26,7 +26,7 @@ reddit = praw.Reddit(
     client_secret=reddit_credentials["client_secret"],
     username=reddit_credentials["username"],
     password=reddit_credentials["password"],
-    user_agent="ClassicRAGBot/1.0 (by /u/Many-Emergency7458)"
+    user_agent=f"ClassicRAGBot/1.0 (by /u/{reddit_credentials['username']})"
 )
 
 print("PRAW authentication successful!")
