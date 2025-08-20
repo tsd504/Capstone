@@ -47,7 +47,7 @@ When you import this file, `main_function()` won't run. When you run the file di
 ### General Summary
 The scraper extracts Classic WoW game data from various sources, focusing on items and quests. It handles dynamic content using Selenium and processes HTML with BeautifulSoup.
 
-### ITEMS
+### Items
 
 #### `scrape_items.py`
 Focuses on scraping functions and HTML/JavaScript handling.
@@ -135,7 +135,7 @@ Creates a lookup table mapping weapon names to their correct classifications.
 - Ensures consistent weapon categorisation across the system
 
 
-### QUESTS
+### Quests
 
 #### `scrape_quests.py`
 General purpose quest data extraction from Classic WoW database.
