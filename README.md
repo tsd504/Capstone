@@ -152,7 +152,7 @@ def scrape_quest_data(quest_name):
     
     # Use ActionChains for complex interactions
     actions = ActionChains(driver)
-    actions.move_to_element(reward_element).click().perform()
+    actions.move_to_element(reward_element).perform()
     
     # Extract quest data
     quest_info = parse_quest_page(driver.page_source)
@@ -167,7 +167,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 # Hover over element then click
 actions = ActionChains(driver)
-actions.move_to_element(element).click().perform()
+actions.move_to_element(element).perform()
 
 # Drag and drop
 actions.drag_and_drop(source, target).perform()
