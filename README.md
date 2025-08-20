@@ -256,7 +256,7 @@ Determines the number of Reddit posts answerable with complete data vs. current 
 
 **What it does:**
 - Analyses each Reddit post for answerability
-- Classifies posts as answerable with complete wiki data or subjective
+- Classifies posts as "answerable" with complete wiki data or "subjective"
 - Provides insights into data coverage and gaps
 
 **Key Numbers from TSV Analysis:**
