@@ -179,7 +179,6 @@ Reference: [Action Chains in Selenium Python](https://www.geeksforgeeks.org/pyth
 Classic WoW quests have different reward types:
 - **Pick Selection**: Player chooses from multiple reward options
 - **Guaranteed**: Player receives all listed rewards
-- **Random**: Rewards are randomly selected from a pool
 
 This affects how the RAG system presents reward information to users.
 
