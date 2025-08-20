@@ -308,21 +308,21 @@ Core RAG system implementation with Google Cloud integration.
 class SimpleRAG:
     def __init__(self, project_id, gemini_api_key):
         """
-        Initialize the RAG system with Google Cloud services
+        Initialise the RAG system with Google Cloud services
         Sets up BigQuery, Vertex AI, and Gemini
         """
         # Set Google Application Credentials
         service_account_path = Path(__file__).parent / 'service-account-key.json'
         os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = str(service_account_path)
         
-        # Initialize BigQuery client
+        # Initialise BigQuery client
         self.bq_client = bigquery.Client(project=project_id)
         
-        # Initialize Vertex AI for embeddings
+        # Initialise Vertex AI for embeddings
         vertexai.init(project=project_id, location="us-central1")
         self.embedding_model = TextEmbeddingModel.from_pretrained("text-embedding-005")
         
-        # Initialize Gemini for text generation
+        # Initialise Gemini for text generation
         genai.configure(api_key=gemini_api_key)
         self.gemini_model = genai.GenerativeModel("gemini-1.5-flash")
 ```
