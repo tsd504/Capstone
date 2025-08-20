@@ -1,26 +1,30 @@
+# Selenium imports
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+
+# Time imports for checking file freshness
 from datetime import datetime, timedelta
 import time
+
+# Path used to reference files
 from pathlib import Path
 
-def setup_driver(): # Want to remove terminal noise
-    """Setup and return Chrome WebDriver with options"""
+def setup_driver(): # Want to remove noise in terminal for improved flow
+    """Setup Chrome WebDriver"""
     chrome_options = Options()
     chrome_options.add_argument("--silent")
     chrome_options.add_argument("--log-level=3")
     chrome_options.add_argument("--disable-logging")
-    
     return webdriver.Chrome(options=chrome_options)
 
 def handle_consent_popup(driver): # Find and click consent button by class
     """Handle consent popup on the website"""
     try:
         consent_button = driver.find_element(By.CSS_SELECTOR, "button.fc-button.fc-cta-consent.fc-primary-button")
-        if consent_button.is_displayed() and consent_button.is_enabled():
+        if consent_button.is_displayed() and consent_button.is_enabled(): # Selenium methods
             consent_button.click()
-            print("Consent button clicked")
+            print("Consent button removed")
             time.sleep(2)
     except:
         pass # No consent popup found, which is fine
@@ -29,7 +33,7 @@ def check_file_freshness(file_path, days=30): # Function to allow us to resume i
     """Check if a file exists and is less than specified days old"""
     
     if not Path(file_path).exists():
-        return False, None # File is old because it doesn't exist
+        return False, False # returns bool(is_fresh), bool(file_exists)
     
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -52,7 +56,7 @@ def save_with_timestamp(file_path, content_func, data, *args):
     
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')}\n")
-        if args:
+        if args: # Some functions have additional arguments
             content_func(f, data, *args)
         else:
             content_func(f, data)
@@ -76,10 +80,10 @@ def find_raid_urls(driver):
             
             for line in lines:
                 line = line.strip()
-                if line.startswith('#') and 'Total raids found:' not in line: # Raid names
+                if line.startswith('#') and 'Total raids found:' not in line: # Comments excluding the total raids found comment
                     current_raid = line[2:].strip()  # Don't include '# ' prefix
                 elif line.startswith('http') and current_raid:
-                    # This is a URL for the current raid
+                    # This is the URL for the current raid
                     raid_urls.append({
                         'name': current_raid,
                         'url': line
@@ -292,7 +296,7 @@ def save_players(driver, raid_urls, class_spec_extensions):
                 
                 table_html = table.get_attribute('outerHTML') # Get the HTML of the table
                 
-                def save_table_content(f, table_html, raid_name, full_url):
+                def save_table_content(f, table_html, raid_name, full_url): # Extra arguments this time
                     f.write(f"# Raid: {raid_name}\n")
                     f.write(f"# URL: {full_url}\n")
                     f.write(f"# Scraped: {time.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
@@ -323,11 +327,8 @@ def main():
         raid_urls = find_raid_urls(driver) # Load or scrape raid URLs
         
         if raid_urls:
-            class_spec_extensions = find_class_spec_extensions(driver, raid_urls[0]['url']) # Only need to scrape the first raid URL
+            class_spec_extensions = find_class_spec_extensions(driver, raid_urls[0]['url']) # Only need to scrape the first raid URL for class/spec extensions
             
-            print(f"\n{'='*60}")
-            print(f"FINAL RESULTS")
-            print(f"{'='*60}")
             print(f"Total raids found: {len(raid_urls)}")
             print(f"Total class/spec combinations: {len(class_spec_extensions)}")
             print(f"Total URLs: {len(class_spec_extensions) * len(raid_urls)}")

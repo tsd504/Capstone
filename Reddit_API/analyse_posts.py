@@ -123,10 +123,9 @@ def main():
     
     # Print summary
     print(f"Total posts analysed: {total_posts}")
-    print(f"Posts marked as answerable by your data: {answerable_with_data}")
+    print(f"Posts marked as answerable by my data: {answerable_with_data}")
     print(f"Posts answerable with wiki data: {answerable_with_wiki}")
     print(f"Subjective/couldn't answer: {subjective_questions}")
-    print(f"Analysis errors: {errors}")
     
     # Calculate percentages
     if total_posts > 0:
@@ -134,20 +133,15 @@ def main():
         wiki_answerable_pct = (answerable_with_wiki / total_posts) * 100
         subjective_pct = (subjective_questions / total_posts) * 100
         
-        print(f"\n📈 PERCENTAGES:")
-        print(f"Answerable with your data: {data_answerable_pct:.1f}%")
+        print(f"Answerable with my data: {data_answerable_pct:.1f}%")
         print(f"Answerable with wiki data: {wiki_answerable_pct:.1f}%")
         print(f"Subjective/couldn't answer: {subjective_pct:.1f}%")
         
         # Calculate overlap
         overlap = min(answerable_with_data, answerable_with_wiki)
         overlap_pct = (overlap / total_posts) * 100
-        print(f"Overlap (your data + wiki data): {overlap_pct:.1f}%")
+        print(f"Overlap (my data + wiki data): {overlap_pct:.1f}%")
         
-        print(f"\n🎯 CONCLUSION:")
-        print(f"Your data covers {data_answerable_pct:.1f}% of posts, but {wiki_answerable_pct:.1f}%")
-        print(f"could be answered with wiki data, and {subjective_pct:.1f}% are subjective questions.")
-        print(f"This means your data is actually quite valuable for the factual questions!")
         print(f"\nThe TSV file has been updated with a new 'wiki_answerable' column!")
 
 if __name__ == "__main__":

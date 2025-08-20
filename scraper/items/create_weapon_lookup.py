@@ -4,9 +4,14 @@ import time
 from bs4 import BeautifulSoup
 from pathlib import Path
 
+# This file creates a list of all weapon ids found in the structured_items data.
+# It then categorises each weapon into a slot, using classicdb.ch.
+# The categorisations are saved to weapon_lookup.txt.
+# This file is used to lookup weapons and find their type.
+
 def extract_unique_weapon_ids():
     """Extract all unique weapon IDs from structured_items data"""
-    weapon_ids = set()
+    weapon_ids = set() # Set to prevent duplicates
     script_dir = Path(__file__).parent
     structured_dir = script_dir / "structured_items"
     
@@ -62,7 +67,7 @@ def categorise_weapon(item_id):
         return 'error'
 
 def load_existing_categorisations(lookup_file):
-    """Load existing weapon categorisations from file"""
+    """Load existing weapon categorisations from file""" # This is used to prevent re-categorising weapons that have already been categorised
     existing = {}
     if lookup_file.exists():
         print("Loading existing weapon categorisations...")
@@ -92,7 +97,7 @@ def create_weapon_lookup():
     lookup_file = script_dir / "scraped_items" / "weapon_lookup.txt"
     existing_categorisations = load_existing_categorisations(lookup_file)
     
-    # Filter to weapons that need categorisation
+    # Filter weapons that need categorisation or recategorisation
     weapons_to_categorise = [item_id for item_id in weapon_ids if item_id not in existing_categorisations or existing_categorisations[item_id] == 'unknown']
     
     print(f"Need to categorise {len(weapons_to_categorise)} weapons...")
@@ -117,10 +122,9 @@ def create_weapon_lookup():
         
         # Save progress after each weapon
         save_categorisations(lookup_file, all_categorisations)
-        print(f"  → Saved as {weapon_type}")
+        print(f"   Saved as {weapon_type}")
         time.sleep(0.5)  # Be respectful to server
-    
-    print(f"\nWeapon lookup complete!")
+
     print(f"Total weapons: {len(weapon_ids)}")
     print(f"Successfully categorised: {categorised_weapons}")
     print(f"Lookup file saved to: {lookup_file}")

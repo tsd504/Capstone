@@ -1,9 +1,9 @@
-import praw
 import google.generativeai as genai
-import csv
 from datetime import datetime
-import json
 from pathlib import Path
+import json
+import praw
+import csv
 
 # Load credentials from JSON file
 credentials_path = Path(__file__).parent / 'reddit_credentials.json'
@@ -28,12 +28,10 @@ reddit = praw.Reddit(
     password=reddit_credentials["password"],
     user_agent=f"ClassicRAGBot/1.0 (by /u/{reddit_credentials['username']})"
 )
-
 print("PRAW authentication successful!")
-print(f"Read-only: {reddit.read_only}")
 
 def is_post_relevant(post_content):
-    """Use Gemini to determine if a post can be answered with my data"""
+    """Use Gemini to determine if a post can be answered with MY data"""
     try:
         prompt = f"""
 
@@ -60,7 +58,6 @@ def is_post_relevant(post_content):
             Respond with only: YES or NO
 
         """
-        
         response = gemini_model.generate_content(prompt)
         return response.text.strip().upper() == "YES"
         
@@ -215,7 +212,7 @@ if current_batch:
             writer.writeheader()
         writer.writerows(current_batch)
     new_posts.extend(current_batch)
-    print(f"    💾 Saved final batch of {len(current_batch)} posts to TSV...")
+    print(f"     Saved final batch of {len(current_batch)} posts to TSV...")
 
 print(f"\n Found {len(new_posts)} new posts from all Classic WoW subreddits")
 print(f" All posts have been saved to {filename}")

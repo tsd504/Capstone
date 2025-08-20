@@ -1,13 +1,8 @@
-"""
-Simple RAG System
-
-"""
-
+from datetime import datetime
 from pathlib import Path
 import pandas as pd
 import json
 import os
-from datetime import datetime
 
 # Google Cloud imports
 from google.cloud import bigquery
@@ -17,18 +12,16 @@ import google.generativeai as genai
 
 class SimpleRAG:
     def __init__(self, project_id, gemini_api_key):
-        """
-        Initialize the simple RAG system
-        """
+
         self.project_id = project_id
         
         # Service account credentials needed to access bigquery and vertex ai
-        credentials_path = Path(__file__).parent / 'credentials.json'
-        if credentials_path.exists():
-            os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = str(credentials_path)
-            print("Using credentials.json file")
+        service_account_path = Path(__file__).parent / 'service-account-key.json'
+        if service_account_path.exists():
+            os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = str(service_account_path)
+            print("Using service-account-key.json file for Google Cloud authentication")
         else:
-            print("Warning: credentials.json not found. Make sure it's in the same directory as this script.")
+            raise FileNotFoundError("service-account-key.json not found")
         
         # Initialize BigQuery
         self.bq_client = bigquery.Client(project=project_id)
@@ -89,9 +82,7 @@ class SimpleRAG:
             return set()
     
     def process_csv(self, csv_file_path):
-        """
-        Process a CSV file and store embeddings in BigQuery
-        """
+        """Process a CSV file and store embeddings in BigQuery"""
         print(f"Processing: {csv_file_path}")
         
         # Get existing row IDs to avoid duplicates
@@ -167,14 +158,13 @@ class SimpleRAG:
         
         print("All data stored in BigQuery!")
     
-    def query(self, question, top_k=5, similarity_threshold=0.5):
+    def query(self, question, top_k=3, similarity_threshold=0.5):
         """
         Query the RAG system
         
-        Args:
-            question: The question to answer
-            top_k: Number of similar documents to retrieve (default 3)
-            similarity_threshold: Minimum similarity score (default 0.5)
+        question: The question to answer
+        top_k: Number of similar documents to retrieve (default 3)
+        similarity_threshold: Minimum similarity score (default 0.5)
         """
         
         # Get embedding for the question
@@ -228,9 +218,9 @@ class SimpleRAG:
         context = "\n\n".join([item["text"] for item in similar_texts])
         
         # Determine optimal K based on question type
-        if any(word in question.lower() for word in ['item', 'weapon', 'armor', 'gear', 'equipment', 'best']):
+        if any(word in question.lower() for word in ['item', 'weapon', 'armor', 'gear', 'equipment']):
             # For item questions, get more data for better aggregation
-            dynamic_k = min(50, top_k * 10)  # Up to 50 items for aggregation
+            dynamic_k = 70
         else:
             # For quest questions, fewer results are fine
             dynamic_k = top_k
@@ -285,16 +275,77 @@ class SimpleRAG:
         
         response = self.gemini_model.generate_content(prompt)
         return response.text
-
-
+    
+    def process_reddit_posts(self):
+        """
+        Process Reddit posts from TSV file and add RAG responses
+        Only processes posts that have answerable = 'yes'
+        """
+        # Path to the Reddit posts TSV file
+        tsv_path = Path(__file__).parent.parent / "Reddit_API" / "classic_wow_posts.tsv"
+        
+        if not tsv_path.exists():
+            print(f"Reddit posts file not found: {tsv_path}")
+            return
+        
+        print(f"Processing Reddit posts from: {tsv_path}")
+        
+        # Read the TSV file
+        df = pd.read_csv(tsv_path, sep='\t', encoding='utf-8-sig')
+        print(f"Loaded {len(df)} Reddit posts")
+        
+        # Check if 'rag_response' column exists, if not create it
+        if 'rag_response' not in df.columns:
+            df['rag_response'] = ''
+            print("Added 'rag_response' column")
+        
+        # Process only posts that have answerable = 'YES' and don't have RAG responses yet
+        answerable_posts = df[(df['answerable'] == 'YES') & 
+                             (df['rag_response'].isna() | (df['rag_response'] == ''))]
+        
+        print(f"Found {len(answerable_posts)} answerable posts without RAG responses")
+        
+        if len(answerable_posts) == 0:
+            print("All answerable posts already have RAG responses!")
+            return
+        
+        # Process each answerable post
+        for i, (index, row) in enumerate(answerable_posts.iterrows()):
+            post_title = row.get('title', '')
+            post_content = row.get('content', '')
+            
+            # Combine title and content for the query
+            full_post = f"Title: {post_title}\n\nContent: {post_content}"
+            
+            print(f"\nProcessing post {i + 1}/{len(answerable_posts)}: {post_title[:50]}...")
+            
+            try:
+                # Get RAG response
+                rag_response = self.query(full_post)
+                
+                # Update the dataframe
+                df.at[index, 'rag_response'] = rag_response
+                
+                print(f" Generated response ({len(rag_response)} characters)")
+                
+                # Save after each post to avoid losing progress
+                df.to_csv(tsv_path, sep='\t', index=False, encoding='utf-8-sig')
+                print(f" Saved to file")
+                
+            except Exception as e:
+                print(f" Error processing post {index}: {e}")
+                # Continue with next post
+                continue
+        
+        print(f"\nCompleted processing {len(answerable_posts)} answerable Reddit posts!")
+        print(f"Updated file: {tsv_path}")
+    
 def main():
-    """
-    Main function - just run this!
-    """
-    print("=== Simple RAG System ===")
+
+    print("Simple RAG System")
     print()
     
-    # STEP 1: Load credentials from JSON file
+    # Load credentials from JSON file
     credentials_path = Path(__file__).parent / 'credentials.json'
     try:
         with open(credentials_path, 'r') as f:
@@ -304,42 +355,43 @@ def main():
         print("Loaded credentials from credentials.json")
     except FileNotFoundError:
         print("Warning: credentials.json not found. Make sure it's in the same directory as this script.")
-        print("Please create credentials.json with: project_id, gemini_api_key")
         exit(1)
-    
-    # STEP 2: Make sure your CSV files are in the right place
-    # Use Path(__file__).parent to reference relative to script location
-    script_dir = Path(__file__).parent
-    CSV_FILES = [
-        #script_dir.parent / "scraper" / "items_combined.csv",
-        script_dir.parent / "scraper" / "quests_combined.csv"
-    ]
     
     try:
         # Create RAG system
         print("Setting up RAG system...")
-        rag = SimpleRAG(PROJECT_ID, GEMINI_API_KEY)
+        rag = SimpleRAG(credentials["project_id"], credentials["gemini_api_key"])
         print("RAG system ready!")
         print()
         
-        # Process CSV files
-        print("Processing CSV files...")
-        for csv_file in CSV_FILES:
-            if csv_file.exists():
-                rag.process_csv(str(csv_file))
-                print()
-            else:
-                print(f"File not found: {csv_file}")
-        print()
+        # NOTE: Only process CSV files if you want to update the database. Otherwise keep commented out.
+        # script_dir = Path(__file__).parent
+        # CSV_FILES = [
+        #     script_dir.parent / "scraper" / "items_combined.csv",
+        #     script_dir.parent / "scraper" / "quests_combined.csv"
+        # ]
+        # # Process CSV files
+        # print("Processing CSV files...")
+        # for csv_file in CSV_FILES:
+        #     if csv_file.exists():
+        #         rag.process_csv(str(csv_file))
+        #         print()
+        #     else:
+        #         print(f"File not found: {csv_file}")
+        # print()
         
-        # Test some queries
-        prompt = input("Prompt: ")
-        while prompt.lower() != "exit":
-            print(f"\nQ: {prompt}")
-            answer = rag.query(prompt)
-            print(f"A: {answer}")
-            print("-" * 50)
-            prompt = input("Prompt: ")
+        # NOTE:Test manual queries
+        # prompt = input("Prompt: ")
+        # while prompt.lower() != "exit":
+        #     print(f"\nQ: {prompt}")
+        #     answer = rag.query(prompt)
+        #     print(f"A: {answer}")
+        #     print("-" * 50)
+        #     prompt = input("Prompt: ")
+
+        # NOTE: Test reddit posts
+        # print("Processing Reddit posts...")
+        # rag.process_reddit_posts()
         
         print("\nAll done!")
         

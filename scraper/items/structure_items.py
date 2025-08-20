@@ -3,8 +3,12 @@ import html
 from bs4 import BeautifulSoup
 from pathlib import Path
 
-# A player could have 15-19 items equipped, some items are cosmetic
-# Set of items that should not be recorded. 
+# NOTE: ISSUES SOLVED BY THIS FILE
+# A player could have 15-19 items equipped, some items are cosmetic and should not be recorded.
+# Weapons are placed in the first available slot by default, so I need to classify items into slots. This is done in create_weapon_lookup.py.
+# weapon_lookup.txt is used to lookup weapons and find their type. Allowing me to place weapons in the correct slot.
+# HTML content is parsed using BeautifulSoup, allowing me to extract the data I need.
+
 COSMETIC_ITEMS = {
     "Rugged Trapper's Shirt", "Common White Shirt", "Orange Mageweave Shirt", 
     "Formal White Shirt", "Stylish Black Shirt", "Pink Mageweave Shirt", 
@@ -40,7 +44,7 @@ def load_weapon_lookup():
                 if len(lines) > 1:  # Data exists
                     for line in lines[1:]: # Skip header row
                         if line.strip(): # Data isn't just spaces
-                            parts = line.strip().split('\t')
+                            parts = line.strip().split('\t') # split by tabs
                             if len(parts) >= 2: # Weapon already has type
                                 item_id = parts[0]
                                 weapon_type = parts[1]
@@ -49,7 +53,7 @@ def load_weapon_lookup():
         except Exception as e:
             print(f"Error with {lookup_file}: {e}")
     else:
-        print("Warning: weapon_lookup.txt not found. Weapons will be marked as 'unknown'") # Unknown weapons get filled into the first available item slot
+        print("Warning: weapon_lookup.txt not found. Weapons will be marked as 'unknown'") # Unknown weapons get filled into the first available item slot, like the default
         print("Run create_weapon_lookup.py first and try again")
 
 def get_weapon_type(item_id):
@@ -114,7 +118,7 @@ def extract_player_data(html_content):
             if size_cell:
                 size = size_cell.get_text(strip=True)
             
-            # In the HTML time related td's have a span with text we don't want, so decompose is needed to remove the spans
+            # In the HTML time related td's have a span with text I don't want, so decompose is needed to remove the spans
             date_cell = row.find('td', class_=lambda x: x and 'players-table-date' in x)
             if date_cell:
                 # Remove hidden spans and get text
@@ -122,7 +126,7 @@ def extract_player_data(html_content):
                     span.decompose()
                 date = date_cell.get_text(strip=True)
             
-            # In the HTML time related td's have a span with text we don't want, so decompose is needed to remove the spans
+            # In the HTML time related td's have a span with text I don't want, so decompose is needed to remove the spans
             duration_cell = row.find('td', class_=lambda x: x and 'players-table-duration' in x)
             if duration_cell:
                 # Remove hidden spans and get text
@@ -220,13 +224,12 @@ def classify_items_into_slots(items):
                 elif weapon_type == 'ranged': # Ranged weapon is always ranged
                     slots['Ranged'] = f"{item_name} ({item_id})"
                 elif weapon_type == 'one-hand': # One hand weapons are placed in first available slot
-                    
                     if slots['Weapon1'] == 'N/A':
                         slots['Weapon1'] = f"{item_name} ({item_id})"
                     elif slots['Weapon2'] == 'N/A':
                         slots['Weapon2'] = f"{item_name} ({item_id})"
                     else:
-                        # Both slots filled, this shouldn't happen with our data
+                        # Both slots filled, this shouldn't happen with the data I have
                         print(f"Warning: Both weapon slots filled for {item_name} ({item_id})")
                 else: # Weapon type is unknown
                     # Unknown weapon type, place in first available slot
@@ -340,8 +343,7 @@ def process_all_files():
                 except Exception as e:
                     print(f"Error processing {spec_file.name}: {e}")
                     continue
-    
-    print(f"\nSummary:")
+
     print(f"  Total files: {total_files}")
     print(f"  Successfully processed: {processed_files}")
     print(f"  Failed: {total_files - processed_files}")

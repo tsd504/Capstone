@@ -1,272 +1,438 @@
-# Classic WoW Data Collection & RAG System
+# Classic WoW RAG System
 
-This project collects Classic World of Warcraft data from various sources, processes it, and creates a Retrieval-Augmented Generation (RAG) system for answering questions about the game.
+This project implements a Retrieval-Augmented Generation (RAG) system for Classic World of Warcraft questions. It scrapes game data, collects Reddit posts, and uses AI to provide accurate answers based on scraped information.
 
 ## Project Structure
 
 ```
-Github/
-├── scraper/           # Data collection from WoWHead
-├── Reddit_API/        # Reddit post collection and analysis
-└── RAG_system/        # Vector search and question answering
+Capstone/
+├── scraper/
+├── Reddit_API/
+└── RAG_system/
 ```
+
+The project consists of three main components:
+
+1. **`scraper/`** - Web scraping for game data
+2. **`Reddit_API/`** - Reddit post collection and analysis
+3. **`RAG_system/`** - AI-powered question answering system
+
+## Code Organisation Best Practice
+
+Despite only importing one file, the project uses the `if __name__ == "__main__":` pattern throughout. This is a Python best practice that:
+
+- **Prevents code execution** when modules are imported
+
+Example:
+```python
+def main_function():
+    # Main logic here
+    pass
+
+if __name__ == "__main__":
+    main_function()
+```
+
+When you import this file, `main_function()` won't run. When you run the file directly, it will execute.
 
 ---
 
 ## Scraper Code Guidance
 
-### Items
+### Order of Operation
+1. Scrape game data (items, quests)
+2. Structure and clean the data
+3. Generate CSV files for RAG system
 
-**Order of operation:** `scrape_items.py` → `structure_items.py` → `create_weapon_lookup.py` → `structure_items.py` (run again)
+### General Summary
+The scraper extracts Classic WoW game data from various sources, focusing on items and quests. It handles dynamic content using Selenium and processes HTML with BeautifulSoup.
 
-#### 1. scrape_items.py
-Scrapes item data from WarcraftLogs for each class, spec, and raid combination. Uses BeautifulSoup to parse HTML and extract item information.
+### ITEMS
 
-**Key concepts:**
-- **Web scraping with BeautifulSoup:** Parses HTML to extract structured data from websites
-- **Rate limiting:** Includes delays between requests to avoid overwhelming the server
-- **File organisation:** Creates nested directory structure based on raid/class/spec
+#### `scrape_items.py`
+Focuses on scraping functions and HTML/JavaScript handling.
 
-**Main methods:**
+**Why Selenium instead of BeautifulSoup?**
+- **Dynamic Content**: Many item pages load data via JavaScript after the initial HTML loads
+- **Interactive Elements**: Some pages require clicking buttons or scrolling to reveal content
+- **AJAX Requests**: Item data is often fetched asynchronously, which BeautifulSoup can't handle
+
+**Main Functions:**
 ```python
-def find_raid_urls(driver):
-    """Finds all raid URLs from the main page"""
-    # Scrapes raid links and saves them for processing
-
-def save_players(driver, raid_urls, class_spec_extensions):
-    """Main function that scrapes player data for all raids"""
-    # Iterates through raids and extracts player information
-    # Creates directory structure: scraped_items/Raid/Class/Spec.txt
-```
-
-#### 2. structure_items.py
-Takes the raw scraped data and converts it into a structured format suitable for analysis. Cleans up the text, standardises formatting, and creates consistent data structures.
-
-**Key concepts:**
-- **Data normalisation:** Standardises text formatting and removes inconsistencies
-- **Text cleaning:** Removes HTML tags and extra whitespace
-
-**Main methods:**
-```python
-def extract_player_data(html_content):
-    """Extracts structured player data from HTML content"""
-    # Parses HTML tables to extract player information
-    # Returns clean, structured data
-
-def process_all_files():
-    """Main function that processes all scraped files"""
-    # Iterates through all scraped files and structures them
-```
-
-#### 3. create_weapon_lookup.py
-Creates a lookup table for weapons to help with data organisation and cross-referencing.
-
-**Main methods:**
-```python
-def create_weapon_lookup():
-    """Creates a comprehensive weapon lookup table"""
-    # Categorises weapons by type and creates lookup mappings
-```
-
-#### 4. structure_items.py (second run)
-Runs the structuring process again on the updated data to ensure consistency.
-
-### Quests
-
-**Order of operation:** Just run `scrape_quests.py` (calls `scrape_comments.py` automatically)
-
-#### 1. scrape_quests.py
-Scrapes quest information from classicdb.ch, including quest details, requirements, rewards, and comments. Automatically calls the comments scraper for each quest.
-
-**Key concepts:**
-- **Recursive scraping:** Automatically triggers comment scraping for each quest found
-- **Data extraction patterns:** Uses consistent patterns to extract quest information
-
-**Main methods:**
-```python
-def scrape_quest_data(driver):
-    """Main function that scrapes all quests and automatically calls comment scraping"""
-    # Iterates through quest categories
-    # Calls scrape_comments.py for each quest found
-
-def extract_quest_data_from_row(row, driver):
-    """Extracts quest information from a table row"""
-    # Parses quest details including requirements and rewards
-```
-
-#### 2. scrape_comments.py
-Scrapes user comments for each quest, providing additional context and community knowledge.
-
-**Main methods:**
-```python
-def scrape_quest_details(quest_extension):
-    """Scrapes detailed quest information and comments"""
-    # Extracts quest description, progress, and user comments
-```
-
-### generate_csv.py
-Combines all the scraped data into CSV files for easy analysis and import into other systems.
-
-**Main methods:**
-```python
-def generate_item_csv():
-    """Combines all item data into a single CSV file"""
-
-def generate_quest_csv():
-    """Combines all quest data into a single CSV file"""
-```
-
----
-
-## Reddit_API Code Guidance
-
-**Order of operation:** `collect_posts.py` → `analyse_posts.py`
-
-### 1. collect_posts.py
-Collects Reddit posts from Classic WoW subreddits using the PRAW (Python Reddit API Wrapper) library. Filters posts for relevance using Gemini AI and saves them to a TSV file.
-
-**Key concepts:**
-- **PRAW authentication:** Uses Reddit's API with OAuth2 authentication
-- **Batch processing:** Processes posts in batches to avoid memory issues
-- **Duplicate detection:** Checks for existing posts to avoid re-processing
-- **AI-powered filtering:** Uses Gemini to determine if posts are answerable with game data
-- **TSV formatting:** Uses tab-separated values for better Excel compatibility
-- **Character encoding:** Uses `utf-8-sig` encoding to handle special characters properly
-
-**Main methods:**
-```python
-def is_post_relevant(post_content):
-    """Uses Gemini AI to determine if a post can be answered with game data"""
-    prompt = f"""
-    You have data on Classic WoW raids and quests.
-    Can this Reddit post be answered using this data?
-    Post: {post_content}
-    Respond with only: YES or NO
+def scrape_raid_items(raid_name, class_name, spec_name):
     """
-    response = gemini_model.generate_content(prompt)
-    return response.text.strip().upper() == "YES"
-```
-
-**Technical details:**
-- **Character encoding issues:** The black diamond characters () you might see in Excel are caused by inconsistent encoding between reading and writing files. Using `utf-8-sig` for both operations fixes this.
-- **Text cleaning:** Removes newlines, tabs, and multiple spaces to prevent TSV formatting issues
-
-### 2. analyse_posts.py
-Analyses the collected Reddit posts to determine which ones could be answered with wiki data versus subjective questions.
-
-**Key concepts:**
-- **Post classification:** Uses AI to categorise posts as factual vs subjective
-- **Data enrichment:** Adds new columns to existing data
-
-**Main methods:**
-```python
-def analyse_post_type(post_content):
-    """Analyses if a post is answerable with wiki data or is subjective"""
-    prompt = f"""
-    You are analysing Reddit posts to determine if they can be answered with factual game data.
-    A post is "YES" if it asks for item locations, quest info, class abilities, etc.
-    A post is "NO" if it asks for personal preferences or opinions.
-    Post: {post_content}
-    Respond with only: YES or NO
+    Scrapes items for a specific raid, class, and specialization
+    Handles JavaScript-loaded content and dynamic page elements
     """
-```
-
----
-
-## RAG_system Code Guidance
-
-**Order of operation:** `simple_rag.py`
-
-### 1. simple_rag.py
-Creates a Retrieval-Augmented Generation system that can answer questions about Classic WoW using the collected data.
-
-**Key concepts:**
-- **Vector embeddings:** Converts text into numerical representations (vectors) that capture semantic meaning
-- **BigQuery integration:** Uses Google BigQuery for storing and querying vector data
-- **Cosine similarity:** Mathematical method for comparing how similar two vectors are
-- **RAG architecture:** Combines retrieval (finding relevant documents) with generation (creating answers)
-
-**Main methods:**
-```python
-def query(self, question, top_k=3):
-    """Main query method that implements the RAG process"""
-    # 1. Convert question to embedding vector
-    question_embedding = self.embedding_model.get_embeddings([question])[0].values
+    # Navigate to the page
+    driver.get(url)
     
-    # 2. Search BigQuery for similar documents using cosine similarity
-    # 3. Retrieve top-k most similar documents
-    # 4. Generate answer using Gemini
+    # Wait for JavaScript content to load
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "item-list"))
+    )
+    
+    # Extract item data
+    items = driver.find_elements(By.CLASS_NAME, "item")
+    # ... process items
 ```
 
-**Technical concepts explained:**
-
-**Vector Embeddings:**
-- Text is converted into fixed-size vectors
-- Each number represents some semantic feature
-- Similar meanings produce similar vectors (e.g., "sword" and "weapon" have similar embeddings)
-- The model learned to encode meaning into numbers during training
-
-**Cosine Similarity:**
-- Measures the angle between two vectors in high-dimensional space
-- Range: -1 to 1, where 1 = identical, 0 = unrelated, -1 = opposite
-- Formula: `cos(θ) = (A·B) / (|A| × |B|)`
-- Used to find the most relevant documents for a query
-
-**BigQuery Vector Operations:**
-- **UNNEST:** Flattens arrays into individual rows for mathematical operations
-- **WITH OFFSET:** Tracks the position of each element when unnesting arrays
-- **USING (pos):** Joins arrays based on position to ensure corresponding elements are compared
-- **Array literals:** BigQuery expects arrays in string format like `[0.1,-0.3,0.7,-0.2]`
-
-**Why UNNEST is needed:**
-- BigQuery stores embeddings as arrays: `[-0.01545286, 0.015474392, ...]`
-- You can't do math on arrays directly: `array * array` doesn't work
-- UNNEST flattens arrays so you can calculate dot products: `element1 * element2`
-
-**RAG Process:**
-1. Convert user question to embedding vector
-2. Find most similar document embeddings using cosine similarity
-3. Retrieve the actual text of those documents
-4. Use Gemini to generate an answer based on the retrieved context
-
-#### Example flow:
-```
-Question: "What's the best weapon for a warrior?"
-↓
-Embedding: [0.1, -0.3, 0.7, -0.2, ...]
-↓
-SQL query finds similar document embeddings
-↓
-Retrieves: "Rank: 1 || Name: ... || Weapon: ..."
-↓
-Gemini generates: "Based on the data, ... appears to be..."
+**JavaScript Click with Selenium:**
+```python
+# Click element using JavaScript when normal click fails
+element = driver.find_element(By.ID, "load-more")
+driver.execute_script("arguments[0].click();", element)
 ```
 
-**Similar BigQuery Implementation:**
-The cosine similarity calculation in this code is very similar to the approach shown in [this Stack Overflow answer](https://stackoverflow.com/questions/53927630/cosine-similarity-between-pair-of-arrays-in-bigquery), which demonstrates the same UNNEST pattern for calculating cosine similarity between arrays in BigQuery.
+Reference: [How to click an element in Selenium WebDriver using JavaScript](https://stackoverflow.com/questions/11947832/how-to-click-an-element-in-selenium-webdriver-using-javascript)
+
+#### `structure_items.py`
+Focuses on BeautifulSoup parsing and weapon type classification.
+
+**The Problem of Weapon Classification:**
+Classic WoW has complex weapon rules that require looking up actual item data:
+- **Main Hand Only**: Weapons that can only be equipped in the main hand slot
+- **Two-Hand**: Two-handed weapons that occupy both main hand and off hand slots
+- **One-Hand**: One-handed weapons that can be equipped in either main hand or off hand
+- **Off Hand**: Items specifically designed for the off hand slot (shields, held in off-hand)
+- **Ranged**: Bows, guns, wands, and relics that go in the ranged slot
+
+**Main Functions:**
+```python
+def categorise_weapon(item_id):
+    """
+    Look up weapon on classicdb.ch and categorise it based on HTML structure
+    Uses the actual equipment slot information from the item page
+    """
+    response = requests.get(f"https://classicdb.ch/?item={item_id}", timeout=10)
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    # Categorise based on equipment slot
+    if equipment_slot:
+        if equipment_slot in ['ranged', 'relic']:
+            return 'ranged'
+        elif equipment_slot in ['held in off-hand', 'off hand']:
+            return 'off-hand'
+        elif equipment_slot in ['main hand', 'two-hand']:
+            return 'main-hand-only'
+        elif equipment_slot == 'one-hand':
+            return 'one-hand'
+```
+
+**New Methods Explained:**
+- **`unescape()`**: Converts HTML entities (like `&amp;`) back to normal characters
+- **`decompose()`**: Removes an element and all its children from the DOM tree
+- **`DOTALL`**: Regex flag that makes `.` match newlines (useful for multi-line text)
+- **`glob`**: Pattern matching for file paths (e.g., `*.txt` matches all text files)
+
+#### `create_weapon_lookup.py`
+Creates a lookup table mapping weapon names to their correct classifications.
+
+**What it does:**
+- Reads scraped weapon data
+- Applies classification rules
+- Generates a lookup file for the RAG system
+- Ensures consistent weapon categorisation across the system
+
+
+### QUESTS
+
+#### `scrape_quests.py`
+General purpose quest data extraction from Classic WoW database.
+
+**Main Functions:**
+```python
+def scrape_quest_data(quest_name):
+    """
+    Extracts quest information including objectives, rewards, and requirements
+    Handles dynamic content loading and interactive elements
+    """
+    # Navigate to quest page
+    driver.get(quest_url)
+    
+    # Use ActionChains for complex interactions
+    actions = ActionChains(driver)
+    actions.move_to_element(reward_element).click().perform()
+    
+    # Extract quest data
+    quest_info = parse_quest_page(driver.page_source)
+    return quest_info
+```
+
+**Selenium ActionChains:**
+ActionChains are useful for complex interactions like hovering, drag and drop, and multi-step actions.
+
+```python
+from selenium.webdriver.common.action_chains import ActionChains
+
+# Hover over element then click
+actions = ActionChains(driver)
+actions.move_to_element(element).click().perform()
+
+# Drag and drop
+actions.drag_and_drop(source, target).perform()
+```
+
+Reference: [Action Chains in Selenium Python](https://www.geeksforgeeks.org/python/action-chains-in-selenium-python/)
+
+**The Problem of Reward Identification:**
+Classic WoW quests have different reward types:
+- **Pick Selection**: Player chooses from multiple reward options
+- **Guaranteed**: Player receives all listed rewards
+- **Random**: Rewards are randomly selected from a pool
+
+This affects how the RAG system presents reward information to users.
+
+#### `generate_csv.py`
+Converts scraped data into CSV format for the RAG system.
+
+**Main Functions:**
+```python
+def write_to_csv(data, filename):
+    """
+    Writes structured data to CSV file
+    Handles special characters and proper formatting
+    """
+    with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(['Name', 'Type', 'Data'])  # Headers
+        
+        for item in data:
+            writer.writerow([item['name'], item['type'], item['data']])
+```
+
+**CSV Writing Best Practices:**
+- Use `newline=''` to handle line ending differences across operating systems
+- Specify `encoding='utf-8'` for proper character handling
+- Use `csv.writer()` for automatic escaping of special characters
+
+Reference: [How to write to a CSV file](https://docs.python.org/3/library/csv.html)
 
 ---
 
-## Useful Resources
+## Reddit_API code guidance
 
-### Web Scraping
-- [BeautifulSoup Documentation](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
-- [W3Schools - Python Web Scraping](https://www.w3schools.com/python/python_web_scraping.asp)
+### Order of Operation
+1. Collect Reddit posts from relevant subreddits
+2. Analyze posts for answerability
+3. Process answerable posts with RAG system
 
-### Reddit API
-- [PRAW Documentation](https://praw.readthedocs.io/)
-- [Reddit API Guide](https://github.com/reddit-archive/reddit/wiki/API)
+### General Summary
+The Reddit API component collects and analyzes Classic WoW Reddit posts, determining which can be answered with scraped game data.
 
-### Vector Similarity
-- [Cosine Similarity - Stack Overflow](https://stackoverflow.com/questions/1746501/can-someone-give-an-example-of-cosine-similarity-in-a-very-simple-graphical-wa)
-- [Vector Similarity Search - Pinecone](https://www.pinecone.io/learn/vector-similarity/)
+#### `collect_posts.py`
+Collects Reddit posts using PRAW (Python Reddit API Wrapper).
 
-### BigQuery
-- [BigQuery Documentation](https://cloud.google.com/bigquery/docs)
-- [BigQuery Arrays - Google Cloud](https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays)
-- [BigQuery Cosine Similarity Example](https://stackoverflow.com/questions/53927630/cosine-similarity-between-pair-of-arrays-in-bigquery) - Shows very similar code to what's implemented here
+**Main Functions:**
+```python
+def collect_reddit_posts():
+    """
+    Collects posts from Classic WoW subreddits
+    Filters for relevance and saves to TSV file
+    """
+    reddit = praw.Reddit(
+        client_id=credentials["client_id"],
+        client_secret=credentials["client_secret"],
+        username=credentials["username"],
+        password=credentials["password"],
+        user_agent="ClassicRAGBot/1.0"
+    )
+    
+    # Collect posts from multiple subreddits
+    subreddits = ['classicwow', 'wowclassic']
+    for subreddit in subreddits:
+        posts = reddit.subreddit(subreddit).hot(limit=100)
+        process_posts(posts)
+```
 
-### RAG Systems
-- [RAG Architecture - Pinecone](https://www.pinecone.io/learn/retrieval-augmented-generation/)
+**PRAW Configuration:**
+- **Client ID/Secret**: From Reddit app settings
+- **Username/Password**: Reddit account credentials
+- **User Agent**: Identifies your bot to Reddit
+
+Reference: [PRAW Quick Start Guide](https://praw.readthedocs.io/en/stable/getting_started/quick_start.html)
+
+#### `analyse_posts.py`
+Determines the number of Reddit posts answerable with complete data vs. current scraped data.
+
+**What it does:**
+- Analyzes each Reddit post for answerability
+- Classifies posts as answerable with complete wiki data or subjective
+- Provides insights into data coverage and gaps
+
+**Key Numbers from TSV Analysis:**
+- **86.4% (2,552)** of posts are subjective and not answerable even with complete wiki data
+- **13.6% (402)** are answerable with complete wiki data
+- **3.4% (100)** are answerable with current scraped data
+
+**Main Functions:**
+```python
+def analyse_post_type(post_title, post_content):
+    """
+    Determines if a post can be answered with game data
+    Uses Gemini AI to classify post types
+    """
+    prompt = f"""
+    Analyze this Reddit post and determine if it can be answered with Classic WoW game data:
+    
+    Title: {post_title}
+    Content: {post_content}
+    
+    Classify as:
+    - "answerable with wiki data" if it asks for factual game information
+    - "subjective" if it's opinion-based or requires personal experience
+    """
+    
+    response = gemini_model.generate_content(prompt)
+    return classify_response(response.text)
+```
 
 ---
+
+## RAG_system code guidance
+
+### Order of Operation
+1. Initialize Google Cloud services and AI models
+2. Create BigQuery table for vector storage
+3. Process input data and generate embeddings
+4. Query system using cosine similarity search
+5. Generate AI-powered responses
+
+### General Summary
+The RAG system combines vector search with AI generation to provide accurate answers to Classic WoW questions based on scraped game data.
+
+#### `simple_rag.py`
+Core RAG system implementation with Google Cloud integration.
+
+**Main Functions:**
+```python
+class SimpleRAG:
+    def __init__(self, project_id, gemini_api_key):
+        """
+        Initialize the RAG system with Google Cloud services
+        Sets up BigQuery, Vertex AI, and Gemini
+        """
+        # Set Google Application Credentials
+        service_account_path = Path(__file__).parent / 'service-account-key.json'
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = str(service_account_path)
+        
+        # Initialize BigQuery client
+        self.bq_client = bigquery.Client(project=project_id)
+        
+        # Initialize Vertex AI for embeddings
+        vertexai.init(project=project_id, location="us-central1")
+        self.embedding_model = TextEmbeddingModel.from_pretrained("text-embedding-005")
+        
+        # Initialize Gemini for text generation
+        genai.configure(api_key=gemini_api_key)
+        self.gemini_model = genai.GenerativeModel("gemini-1.5-flash")
+```
+
+**Google Application Credentials:**
+The system sets the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to authenticate with Google Cloud services.
+
+Reference: [Set Google Application Credentials in Python Project](https://stackoverflow.com/questions/45501082/set-google-application-credentials-in-python-project-to-use-google-api)
+
+**BigQuery Client:**
+Used for storing and querying vector embeddings and game data.
+
+Reference: [BigQuery Python Client Library](https://cloud.google.com/python/docs/reference/bigquery/latest)
+
+**Vertex AI Initialization:**
+Sets up the text embedding model for converting text to vectors.
+
+Reference: [Vertex AI Text Embeddings API](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/text-embeddings-api#python)
+
+**BigQuery Table Creation:**
+Creates tables with proper schemas for storing vector data.
+
+```python
+def _create_table(self):
+    """
+    Creates BigQuery table for storing embeddings and game data
+    Includes vector columns for similarity search
+    """
+    schema = [
+        bigquery.SchemaField("id", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("content", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("embedding", "FLOAT64", mode="REPEATED"),
+        bigquery.SchemaField("metadata", "STRING", mode="NULLABLE")
+    ]
+    
+    table = bigquery.Table(f"{self.project_id}.dataset.table_name", schema=schema)
+    self.bq_client.create_table(table, exists_ok=True)
+```
+
+Reference: [BigQuery Table Creation](https://cloud.google.com/bigquery/docs/tables#create_an_empty_table_with_a_schema_definition)
+
+**Cosine Similarity Search:**
+Uses BigQuery SQL to find similar content using vector embeddings.
+
+```python
+def query(self, question, top_k=5, similarity_threshold=0.5):
+    """
+    Query the RAG system using cosine similarity search
+    Returns AI-generated answers based on retrieved content
+    """
+    # Generate question embedding
+    question_embedding = self.embedding_model.get_embeddings([question])[0]
+    
+    # BigQuery SQL for cosine similarity
+    query = f"""
+    SELECT content, metadata,
+           (ARRAY_TO_STRING(embedding, ',') * ARRAY_TO_STRING({question_embedding}, ',')) / 
+           (SQRT(ARRAY_TO_STRING(embedding, ',') * ARRAY_TO_STRING(embedding, ',')) * 
+            SQRT(ARRAY_TO_STRING({question_embedding}, ',') * ARRAY_TO_STRING({question_embedding}, ','))) as similarity_score
+    FROM `{self.project_id}.dataset.table_name`
+    WHERE similarity_score >= {similarity_threshold}
+    ORDER BY similarity_score DESC
+    LIMIT {top_k}
+    """
+    
+    results = self.bq_client.query(query).result()
+    return self.generate_answer(question, results)
+```
+
+Reference: [Cosine Similarity in BigQuery](https://stackoverflow.com/questions/53927630/cosine-similarity-between-pair-of-arrays-in-bigquery) (Note: Formula is slightly different in our implementation)
+
+---
+
+## Steps to Reproduce
+
+### Prerequisites
+1. **Google Cloud Service Account** with "Vertex AI User" and "BigQuery Admin" permissions
+2. **Gemini API Key** for AI text generation
+3. **Reddit API App** credentials (set subreddit preferences in `collect_posts.py`)
+4. **Your own dataset** in CSV format for processing
+
+### Setup Steps
+1. **Place credential files:**
+   - `RAG_system/service-account-key.json` - Google Cloud service account key
+   - `RAG_system/credentials.json` - Project ID and Gemini API key
+   - `Reddit_API/reddit_credentials.json` - Reddit API credentials
+
+2. **Install dependencies:**
+   ```bash
+   pip install google-cloud-bigquery google-cloud-aiplatform google-generativeai praw beautifulsoup4 selenium pandas
+   ```
+
+3. **Configure variables:**
+   - **Subreddit list** in `collect_posts.py` (lines 108-111)
+   - **BigQuery dataset and table names** in `simple_rag.py` (lines 47-48)
+   - **File paths** in `simple_rag.py` for your CSV data
+
+4. **Run the system:**
+   ```bash
+   # Collect Reddit posts
+   python Reddit_API/collect_posts.py
+   
+   # Analyze posts
+   python Reddit_API/analyse_posts.py
+   
+   # Run RAG system
+   python RAG_system/simple_rag.py
+   ```
+
+---
+
+The project demonstrates how to build a focused RAG system that provides accurate answers to specific types of questions (quests and items) rather than attempting to cover all possible game-related queries.

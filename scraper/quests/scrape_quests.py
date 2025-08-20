@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 import scrape_comments
 
 def setup_driver():
-    """Setup and return Chrome WebDriver with options"""
+    """Setup Chrome WebDriver"""
     chrome_options = Options()
     chrome_options.add_argument("--log-level=3")
     chrome_options.add_argument("--silent")
@@ -86,8 +86,8 @@ def check_file_freshness(file_path, days=30):
                 timestamp_str = timestamp_line.replace('# Generated:', '').strip()
                 file_timestamp = datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
                 
-                time_diff = datetime.now() - file_timestamp
-                return time_diff < timedelta(days=days)
+                now = datetime.now()
+                return now - file_timestamp < timedelta(days=days)
             
             return False
             
@@ -134,8 +134,7 @@ def extract_quest_data_from_row(row, driver):
         
         if len(cells) > 4:
             rewards_cell = cells[4]
-            
-            # Parse rewards based on the exact HTML structure from the image
+
             pick_items = []
             guaranteed_items = []
             base_rewards = []
@@ -251,9 +250,8 @@ def scrape_quest_page(driver, extension, category):
     while True:
         print(f"Scraping page {page_num}...")
         
-        # Find quest data immediately
         try:
-            # Find table with quest data (multiple columns) - no waiting
+            # Find table with quest data (multiple columns)
             quest_table = next((table for table in driver.find_elements(By.TAG_NAME, "table")
                               if len(table.find_elements(By.TAG_NAME, "tr")) > 1 and
                               len(table.find_elements(By.TAG_NAME, "tr")[1].find_elements(By.TAG_NAME, "td")) >= 4), None)
@@ -345,9 +343,9 @@ def collect_unique_items_from_files():
     print(f"Found {len(unique_items)} unique item extensions in quest files")
     return unique_items
 
-def create_item_lookup_file(driver):
+def create_item_lookup_file(driver): # Similar to create_weapon_lookup.py but for quest rewards
     """Create or update lookup file with unique item extensions and their names"""
-    # Collect unique items from existing files instead of relying on global variable
+    # Collect unique items from existing files
     unique_items = collect_unique_items_from_files()
     
     if not unique_items:
@@ -598,8 +596,6 @@ def main():
     """Main function to scrape quest categories"""
     print("Scraping quest categories from classicdb.ch...")
     
-    # No longer need to initialize global set - we'll scan files instead
-    
     try:
         driver = setup_driver()
         driver.get("https://classicdb.ch/?quests")
@@ -678,9 +674,7 @@ def main():
             print("WebDriver closed")
     
     # Run comment scraping after quest scraping is complete
-    print("\n" + "="*60)
     print("Starting comment scraping...")
-    print("="*60)
     scrape_comments.main()
 
 if __name__ == "__main__":
