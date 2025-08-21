@@ -398,6 +398,8 @@ Reference: [Cosine Similarity in BigQuery](https://stackoverflow.com/questions/5
 
 ## Steps to Reproduce (excl. Reddit)
 
+1. **Download `simple_rag_reproduce.py`** from the `RAG_system/` directory
+
 ### Prerequisites
 
 #### 1. Google Cloud Project Setup
@@ -488,6 +490,11 @@ The system will:
 4. Start an interactive query session where you can ask questions about your data
 
 Type `exit` to quit the interactive session.
+
+#### Fine-tuning:
+- **k** is the number of relevant documents returned (current: 3)
+- **similarity_threshold** is how relevant a document needs to be (current: 0.5)
+- You can adjust these parameters in the `query()` method call within the script
 
 ---
 
