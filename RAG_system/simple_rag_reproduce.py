@@ -23,17 +23,17 @@ class SimpleRAG:
         else:
             raise FileNotFoundError("service-account-key.json not found")
         
-        # Initialize BigQuery
+        # Initialise BigQuery
         self.bq_client = bigquery.Client(project=project_id)
         
-        # Initialize Vertex AI
+        # Initialise Vertex AI
         vertexai.init(project=project_id, location="us-central1")
         
-        # Initialize embedding model
+        # Initialise embedding model
         self.embedding_model = TextEmbeddingModel.from_pretrained("text-embedding-005")
         print("Vertex AI embedding model ready")
         
-        # Initialize Gemini
+        # Initialise Gemini
         genai.configure(api_key=gemini_api_key)
         self.gemini_model = genai.GenerativeModel("gemini-1.5-flash")
         print("Gemini model ready")
