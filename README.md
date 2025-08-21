@@ -396,40 +396,98 @@ Reference: [Cosine Similarity in BigQuery](https://stackoverflow.com/questions/5
 
 ---
 
-## Steps to Reproduce
+## Steps to Reproduce (excl. Reddit)
 
 ### Prerequisites
-1. **Google Cloud Service Account** with "Vertex AI User" and "BigQuery Admin" permissions
-2. **Gemini API Key** for AI text generation
-3. **Reddit API App** credentials (set subreddit preferences in `collect_posts.py`)
-4. **Your own dataset** in CSV format for processing
 
-### Setup Steps
-1. **Place credential files:**
-   - `RAG_system/service-account-key.json` - Google Cloud service account key
-   - `RAG_system/credentials.json` - Project ID and Gemini API key
-   - `Reddit_API/reddit_credentials.json` - Reddit API credentials
+#### 1. Google Cloud Project Setup
+1. **Create a Google Cloud Project:**
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Create a new project
+   - Note your **Project ID**
 
-2. **Install dependencies:**
-   ```bash
-   pip install google-cloud-bigquery google-cloud-aiplatform google-generativeai praw beautifulsoup4 selenium pandas
+2. **Enable Required APIs:**
+   - Navigate to "APIs & Services" → "Library"
+   - Search for and enable the following APIs:
+     - BigQuery API
+     - Vertex AI API
+
+3. **Create Service Account:**
+   - Go to "IAM & Admin" → "Service Accounts"
+   - Click "Create Service Account"
+   - Give it a name (e.g., "rag-system-service")
+   - Click "Create & Continue"
+   - Assign the following roles:
+     - BigQuery Admin
+     - Vertex AI User
+   - Click "Continue"
+   - Click "Done"
+
+4. **Download Service Account Key:**
+   - Click on your newly created service account
+   - Go to "Keys" tab
+   - Click "Add Key" → "Create new key"
+   - Choose "JSON" format
+   - Download the file and save it as `service-account-key.json` in the same directory as `simple_rag_reproduce.py`
+
+#### 2. Gemini API Key
+1. **Get Gemini API Key:**
+   - Stay in the Google Cloud Console
+   - Go to "APIs & Services" → "Library"
+   - Search for "Gemini API"
+   - Click on "Gemini API" in the search results
+   - Click "Enable"
+   - Go to "APIs & Services" → "Credentials"
+   - Click "Create Credentials" → "API Key"
+   - Note the generated **API key**
+
+2. **Create Credentials File:**
+   - In the same directory as `simple_rag_reproduce.py`, create a file called `credentials.json`
+   - Add the following content:
+   ```json
+   {
+       "project_id": "your-google-cloud-project-id",
+       "gemini_api_key": "your-gemini-api-key-here"
+   }
+   ```
+   - Replace the placeholder values with your actual Project ID and Gemini API key
+
+### Dependencies Installation
+
+Install the required Python packages:
+
+```bash
+pip install pandas google-cloud-bigquery google-cloud-aiplatform google-generativeai vertexai
+```
+
+### File Configuration
+
+#### CSV Files Setup
+1. **Place your CSV files** in the same directory as `simple_rag_reproduce.py`
+2. **Edit the CSV_FILES** in `simple_rag_reproduce.py`:
+   ```python
+   CSV_FILES = [
+       script_dir.parent / "your_first_file.csv",
+       script_dir.parent / "your_second_file.csv"
+       # Add more files as needed
+   ]
    ```
 
-3. **Configure variables:**
-   - **BigQuery dataset and table names** in `simple_rag.py` (lines 47-48)
-   - **File paths** in `simple_rag.py` for your CSV data
+### Running the System
 
-4. **Run the system:**
-   ```bash
-   # Collect Reddit posts
-   python Reddit_API/collect_posts.py
-   
-   # Analyse posts
-   python Reddit_API/analyse_posts.py
-   
-   # Run RAG system
-   python RAG_system/simple_rag.py
-   ```
+Execute the RAG system from the terminal:
+
+```bash
+python simple_rag_reproduce.py
+```
+
+The system will:
+1. Create the necessary BigQuery dataset and table in your new project
+2. Process your CSV files and create embeddings
+3. Store the data in BigQuery
+4. Start an interactive query session where you can ask questions about your data
+
+Type `exit` to quit the interactive session.
 
 ---
 
