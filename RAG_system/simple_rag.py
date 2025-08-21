@@ -158,7 +158,7 @@ class SimpleRAG:
         
         print("All data stored in BigQuery!")
     
-    def query(self, question, top_k=3, similarity_threshold=0.5):
+    def query(self, question, top_k=1, similarity_threshold=0.5):
         """
         Query the RAG system
         
@@ -202,21 +202,6 @@ class SimpleRAG:
         query_job = self.bq_client.query(query_sql)
         results = query_job.result()
         
-        # Get the most similar texts
-        similar_texts = []
-        for row in results:
-            similar_texts.append({
-                "text": row.text,
-                "source": row.source,
-                "score": row.similarity_score
-            })
-        
-        if not similar_texts:
-            return "No relevant information found."
-        
-        # Create context from similar texts
-        context = "\n\n".join([item["text"] for item in similar_texts])
-        
         # Determine optimal K based on question type
         if any(word in question.lower() for word in ['item', 'weapon', 'armor', 'gear', 'equipment']):
             # For item questions, get more data for better aggregation
@@ -230,15 +215,21 @@ class SimpleRAG:
             query_sql_dynamic = query_sql.replace(f"LIMIT {top_k}", f"LIMIT {dynamic_k}")
             query_job = self.bq_client.query(query_sql_dynamic)
             results = query_job.result()
-            
-            # Re-process results
-            similar_texts = []
-            for row in results:
-                similar_texts.append({
-                    "text": row.text,
-                    "source": row.source,
-                    "score": row.similarity_score
-                })
+        
+        # Get the most similar texts (from either original or re-query)
+        similar_texts = []
+        for row in results:
+            similar_texts.append({
+                "text": row.text,
+                "source": row.source,
+                "score": row.similarity_score
+            })
+        
+        if not similar_texts:
+            return "No relevant information found."
+        
+        # Create context from similar texts
+        context = "\n\n".join([item["text"] for item in similar_texts])
         
         # Generate response with Gemini
         prompt = f"""
@@ -276,22 +267,25 @@ class SimpleRAG:
         response = self.gemini_model.generate_content(prompt)
         return response.text
     
-    def process_reddit_posts(self):
+    def process_test_questions(self):
         """
-        Process Reddit posts from TSV file and add RAG responses
-        Only processes posts that have answerable = 'yes'
+        Process test questions from TSV file and add RAG responses
+        Only processes questions that have answerable = 'YES'
         """
-        # Path to the Reddit posts TSV file
-        tsv_path = Path(__file__).parent.parent / "Reddit_API" / "classic_wow_posts.tsv"
+        # Path to the test questions TSV file
+        tsv_path = Path(__file__).parent.parent / "Reddit_API" / "test_questions.tsv"
         
         if not tsv_path.exists():
-            print(f"Reddit posts file not found: {tsv_path}")
+            print(f"Test questions file not found: {tsv_path}")
             return
         
-        print(f"Processing Reddit posts from: {tsv_path}")
+        print(f"Processing test questions from: {tsv_path}")
         
         # Read the TSV file
-        df = pd.read_csv(tsv_path, sep='\t', encoding='utf-8-sig')
+        try:
+            df = pd.read_csv(tsv_path, sep='\t', encoding='utf-8-sig', keep_default_na=False, na_values=[''])
+        except UnicodeDecodeError:
+            df = pd.read_csv(tsv_path, sep='\t', encoding='latin-1', keep_default_na=False, na_values=[''])
         print(f"Loaded {len(df)} Reddit posts")
         
         # Check if 'rag_response' column exists, if not create it
@@ -300,44 +294,52 @@ class SimpleRAG:
             print("Added 'rag_response' column")
         
         # Process only posts that have answerable = 'YES' and don't have RAG responses yet
-        answerable_posts = df[(df['answerable'] == 'YES') & 
-                             (df['rag_response'].isna() | (df['rag_response'] == ''))]
+        # More robust filtering to handle different types of empty values
+        answerable_questions = df[
+            (df['answerable'] == 'YES') & 
+            ((df['rag_response'].isna()) | 
+             (df['rag_response'] == '') | 
+             (df['rag_response'].str.strip() == '') if df['rag_response'].dtype == 'object' else True)
+        ].copy()
         
-        print(f"Found {len(answerable_posts)} answerable posts without RAG responses")
+        print(f"Found {len(answerable_questions)} answerable questions without RAG responses")
         
-        if len(answerable_posts) == 0:
-            print("All answerable posts already have RAG responses!")
+        if len(answerable_questions) == 0:
+            print("All answerable questions already have RAG responses!")
             return
         
-        # Process each answerable post
-        for i, (index, row) in enumerate(answerable_posts.iterrows()):
-            post_title = row.get('title', '')
-            post_content = row.get('content', '')
+        # Process each answerable question
+        for i, (index, row) in enumerate(answerable_questions.iterrows()):
+            question_title = str(row.get('title', '')) if pd.notna(row.get('title')) else ''
+            question_content = str(row.get('content', '')) if pd.notna(row.get('content')) else ''
             
             # Combine title and content for the query
-            full_post = f"Title: {post_title}\n\nContent: {post_content}"
+            full_question = f"Title: {question_title}\n\nContent: {question_content}"
             
-            print(f"\nProcessing post {i + 1}/{len(answerable_posts)}: {post_title[:50]}...")
+            print(f"\nProcessing question {i + 1}/{len(answerable_questions)}: {question_title[:50]}...")
             
             try:
                 # Get RAG response
-                rag_response = self.query(full_post)
+                rag_response = self.query(full_question)
+                
+                # Clean the response - replace newlines and tabs with spaces to keep it in one cell
+                rag_response_clean = rag_response.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')
                 
                 # Update the dataframe
-                df.at[index, 'rag_response'] = rag_response
+                df.loc[index, 'rag_response'] = rag_response_clean
                 
-                print(f" Generated response ({len(rag_response)} characters)")
+                print(f" Generated response ({len(rag_response_clean)} characters)")
                 
-                # Save after each post to avoid losing progress
+                # Save after each question
                 df.to_csv(tsv_path, sep='\t', index=False, encoding='utf-8-sig')
                 print(f" Saved to file")
                 
             except Exception as e:
-                print(f" Error processing post {index}: {e}")
-                # Continue with next post
+                print(f" Error processing question {index}: {e}")
+                # Continue with next question
                 continue
         
-        print(f"\nCompleted processing {len(answerable_posts)} answerable Reddit posts!")
+        print(f"\nCompleted processing {len(answerable_questions)} answerable test questions!")
         print(f"Updated file: {tsv_path}")
     
 def main():
@@ -389,9 +391,9 @@ def main():
         #     print("-" * 50)
         #     prompt = input("Prompt: ")
 
-        # NOTE: Test reddit posts
-        # print("Processing Reddit posts...")
-        # rag.process_reddit_posts()
+        # NOTE: Test questions
+        print("Processing test questions...")
+        rag.process_test_questions()
         
         print("\nAll done!")
         
