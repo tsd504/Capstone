@@ -1,4 +1,4 @@
-[Link to reproduce](#steps-to-reproduce-(excl.-reddit))
+[Link to reproduce](#steps-to-reproduce)
 
 # Classic WoW RAG System
 
