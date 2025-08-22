@@ -1,3 +1,5 @@
+[Link to reproduce](#steps-to-reproduce-(excl.-reddit))
+
 # Classic WoW RAG System
 
 This project implements a Retrieval-Augmented Generation (RAG) system for Classic World of Warcraft questions. It scrapes game data, collects Reddit posts, and uses AI to provide accurate answers based on scraped information.
