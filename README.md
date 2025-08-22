@@ -1,4 +1,4 @@
-[Link to reproduce](#steps-to-reproduce-excl-reddit)
+Jump to [instructions](#steps-to-reproduce-excl-reddit) on how to reproduce my results with your own data.
 
 # Classic WoW RAG System
 
